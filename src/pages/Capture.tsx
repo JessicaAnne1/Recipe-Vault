@@ -18,8 +18,8 @@ export default function Capture() {
     // In a real app, this would use the Gemini API via a service
     // For now, I'll implement the shell and the logic to call Gemini
     try {
-      console.log('API key present:', !!process.env.GEMINI_API_KEY);
-      const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
+      console.log('API key present:', !!import.meta.env.VITE_GEMINI_API_KEY);
+      const ai = new GoogleGenAI({ apiKey: import.meta.env.VITE_GEMINI_API_KEY });
       const prompt = `
         You are a precise culinary data extractor. 
         Parse the following messy recipe text into the requested JSON format.
