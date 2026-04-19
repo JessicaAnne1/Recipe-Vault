@@ -24,12 +24,12 @@ export default function Library() {
     fetchRecipes();
   }, []);
 
-  const allTags = Array.from(new Set(recipes.flatMap(r => r.tags))) as string[];
+  const allTags = Array.from(new Set(recipes.flatMap(r => r.tags || []))) as string[];
 
   const filteredRecipes = recipes.filter(recipe => {
     const matchesSearch = recipe.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
                          recipe.summary.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesTags = selectedTags.length === 0 || selectedTags.every(tag => recipe.tags.includes(tag));
+    const matchesTags = selectedTags.length === 0 || selectedTags.every(tag => (recipe.tags || []).includes(tag));
     return matchesSearch && matchesTags;
   });
 
@@ -131,13 +131,13 @@ export default function Library() {
                   </div>
 
                   <div className="flex flex-wrap gap-1.5 pt-2">
-                    {recipe.tags.slice(0, 3).map(tag => (
+                    {(recipe.tags || []).slice(0, 3).map(tag => (
                       <span key={tag} className="badge !px-2 !py-0.5 !text-[9px]">
                         {tag}
                       </span>
                     ))}
-                    {recipe.tags.length > 3 && (
-                      <span className="text-[10px] font-bold text-slate-300 uppercase">+{recipe.tags.length - 3}</span>
+                    {(recipe.tags || []).length > 3 && (
+                      <span className="text-[10px] font-bold text-slate-300 uppercase">+{(recipe.tags || []).length - 3}</span>
                     )}
                   </div>
                 </div>

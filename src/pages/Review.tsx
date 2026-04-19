@@ -115,7 +115,7 @@ export default function Review() {
               <section className="space-y-4">
                 <h3 className="text-[14px] font-bold text-slate-400 uppercase tracking-[0.1em]">Ingredients</h3>
                 <div className="space-y-1">
-                  {recipe.ingredients.map((ing, i) => (
+                  {(recipe.ingredients || []).map((ing, i) => (
                     <div key={i} className="py-2 border-b border-slate-50 flex justify-between items-center text-sm">
                       <input
                         value={ing.raw}
@@ -131,7 +131,7 @@ export default function Review() {
               <section className="space-y-4">
                 <h3 className="text-[14px] font-bold text-slate-400 uppercase tracking-[0.1em]">Directions</h3>
                 <div className="space-y-6">
-                  {recipe.steps.map((step, i) => (
+                  {(recipe.steps || []).map((step, i) => (
                     <div key={i} className="flex gap-4 text-sm leading-relaxed">
                       <div className="step-number flex-shrink-0">
                         {step.order}
@@ -234,12 +234,12 @@ export default function Review() {
               <div className="space-y-2">
                 <label className="text-[13px] font-semibold text-slate-600 block">Tags</label>
                 <div className="flex flex-wrap gap-2">
-                  {recipe.tags.map((tag, i) => (
+                  {(recipe.tags || []).map((tag, i) => (
                     <span key={i} className="bg-primary text-white px-3 py-1 rounded-lg text-xs font-medium">
                       {tag}
                     </span>
                   ))}
-                  <button className="bg-[#F1F5F9] text-slate-600 px-3 py-1 rounded-lg text-xs font-medium border border-dashed border-slate-400">
+                  <button className="bg-[#E8EDE9] text-[#4A6741] px-3 py-1 rounded-lg text-xs font-medium border border-dashed border-[#4A6741]/20">
                     + Add Tag
                   </button>
                 </div>

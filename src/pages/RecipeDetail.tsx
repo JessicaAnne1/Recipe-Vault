@@ -67,7 +67,7 @@ export default function RecipeDetail() {
                 {recipe.category || 'Recipe'}
               </span>
               <div className="flex gap-2 overflow-x-auto pb-1 no-scrollbar">
-                {recipe.tags.map(tag => (
+                {(recipe.tags || []).map(tag => (
                   <span key={tag} className="badge">
                     {tag}
                   </span>
@@ -111,7 +111,7 @@ export default function RecipeDetail() {
             <section className="space-y-6">
               <h3 className="text-[14px] font-bold text-slate-400 uppercase tracking-[0.1em]">Ingredients</h3>
               <div className="space-y-1">
-                {recipe.ingredients.map((ing, i) => (
+                {(recipe.ingredients || []).map((ing, i) => (
                   <div key={i} className="py-2 border-b border-slate-50 flex justify-between items-start text-sm">
                     <span className="text-ink font-medium">{ing.item}</span>
                     <span className="text-slate-500 font-bold whitespace-nowrap ml-4">{ing.quantity} {ing.unit}</span>
@@ -155,7 +155,7 @@ export default function RecipeDetail() {
           <section className="md:col-span-3 space-y-6">
             <h3 className="text-[14px] font-bold text-slate-400 uppercase tracking-[0.1em]">Instructions</h3>
             <div className="space-y-8">
-              {recipe.steps.map((step, i) => (
+              {(recipe.steps || []).map((step, i) => (
                 <div key={i} className="flex gap-6 text-sm leading-relaxed group">
                   <div className="step-number mt-0.5 group-hover:bg-primary transition-colors">
                     {step.order}
