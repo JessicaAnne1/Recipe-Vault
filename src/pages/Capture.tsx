@@ -20,41 +20,24 @@ export default function Capture() {
     try {
       const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
       const prompt = `
-        Parse the following recipe text into a structured JSON format.
-        Original Text:
-        ${text}
+        You are a precise culinary data extractor. 
+        Parse the following messy recipe text into the requested JSON format.
         
-        The JSON should follow this schema:
-        {
-          "title": string,
-          "summary": string,
-          "category": string,
-          "tags": string[],
-          "dietaryFlags": string[],
-          "servings": number | string,
-          "ingredients": [
-            { "raw": string, "quantity": number|string|null, "unit": string|null, "item": string, "prep": string|null }
-          ],
-          "steps": [
-            { "order": number, "text": string }
-          ],
-          "nutrition": {
-            "calories": number,
-            "protein": number,
-            "carbs": number,
-            "fat": number,
-            "fibre": number
-          }
-        }
-
-        Important: 
-        - Provide numerical values for all nutrition fields representing the amount PER SERVING.
-        - Ensure "nutrition" is a separate top-level object in the JSON.
-        - DO NOT put nutrition information or summary text inside the "steps" or "ingredients" fields. Keep ingredients as a list of components and steps as a list of cooking instructions only.
+        CRITICAL RULES:
+        1. Extract ONLY the recipe data.
+        2. Ingredients should be clean components (e.g. "2 cloves garlic, minced" -> raw: "2 cloves garlic, minced", item: "garlic", quantity: "2", unit: "cloves", prep: "minced").
+        3. Steps should be logical cooking instructions.
+        4. Summary should be one or two concise sentences.
+        5. Nutrition should be calculated PER SERVING. If not found, estimate logically.
+        6. DO NOT repeat the input text back in the output.
+        7. STICK STRICTLY to the schema.
+        
+        Original Text to Parse:
+        ${text}
       `;
 
       const response = await ai.models.generateContent({
-        model: "gemini-3-flash-preview",
+        model: "gemini-3.1-pro-preview",
         contents: prompt,
         config: {
           responseMimeType: "application/json",
@@ -105,7 +88,10 @@ export default function Capture() {
         }
       });
 
-      const parsedRecipe = JSON.parse(response.text);
+      const responseText = response.text || '';
+      if (!responseText) throw new Error("Empty response from AI");
+      
+      const parsedRecipe = JSON.parse(responseText);
       // Store in session storage or state management to carry to /review
       sessionStorage.setItem('temp_recipe', JSON.stringify({
         ...parsedRecipe,
