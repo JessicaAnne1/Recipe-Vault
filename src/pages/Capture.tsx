@@ -2,7 +2,6 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Sparkles, History, Info } from 'lucide-react';
 import { motion } from 'motion/react';
-import { GoogleGenAI, Type } from "@google/genai";
 import { Recipe } from '../types';
 
 export default function Capture() {
@@ -18,12 +17,10 @@ export default function Capture() {
     // In a real app, this would use the Gemini API via a service
     // For now, I'll implement the shell and the logic to call Gemini
     try {
-      console.log('API key present:', !!import.meta.env.VITE_GEMINI_API_KEY);
-      const ai = new GoogleGenAI({ apiKey: import.meta.env.VITE_GEMINI_API_KEY });
       const prompt = `
-        You are a precise culinary data extractor. 
+        You are a precise culinary data extractor.
         Parse the following messy recipe text into the requested JSON format.
-        
+
         CRITICAL RULES:
         1. Extract ONLY the recipe data.
         2. Ingredients should be clean components (e.g. "2 cloves garlic, minced" -> raw: "2 cloves garlic, minced", item: "garlic", quantity: "2", unit: "cloves", prep: "minced").
@@ -32,64 +29,39 @@ export default function Capture() {
         5. Nutrition should be calculated PER SERVING. If not found, estimate logically.
         6. DO NOT repeat the input text back in the output.
         7. STICK STRICTLY to the schema.
-        
+        8. Respond with ONLY valid JSON matching this schema exactly:
+        {
+          "title": string,
+          "summary": string,
+          "category": string,
+          "tags": string[],
+          "dietaryFlags": string[],
+          "servings": string,
+          "ingredients": Array<{ "raw": string, "quantity": string|null, "unit": string|null, "item": string, "prep": string|null }>,
+          "steps": Array<{ "order": number, "text": string }>,
+          "nutrition": { "calories": number, "protein": number, "carbs": number, "fat": number, "fibre": number }
+        }
+
         Original Text to Parse:
         ${text}
       `;
 
-      const response = await ai.models.generateContent({
-        model: "gemini-2.0-flash",
-        contents: prompt,
-        config: {
-          responseMimeType: "application/json",
-          responseSchema: {
-            type: Type.OBJECT,
-            properties: {
-              title: { type: Type.STRING },
-              summary: { type: Type.STRING },
-              category: { type: Type.STRING },
-              tags: { type: Type.ARRAY, items: { type: Type.STRING } },
-              dietaryFlags: { type: Type.ARRAY, items: { type: Type.STRING } },
-              servings: { type: Type.STRING },
-              ingredients: {
-                type: Type.ARRAY,
-                items: {
-                  type: Type.OBJECT,
-                  properties: {
-                    raw: { type: Type.STRING },
-                    quantity: { type: Type.STRING, nullable: true },
-                    unit: { type: Type.STRING, nullable: true },
-                    item: { type: Type.STRING },
-                    prep: { type: Type.STRING, nullable: true }
-                  }
-                }
-              },
-              steps: {
-                type: Type.ARRAY,
-                items: {
-                  type: Type.OBJECT,
-                  properties: {
-                    order: { type: Type.NUMBER },
-                    text: { type: Type.STRING }
-                  }
-                }
-              },
-              nutrition: {
-                type: Type.OBJECT,
-                properties: {
-                  calories: { type: Type.NUMBER },
-                  protein: { type: Type.NUMBER },
-                  carbs: { type: Type.NUMBER },
-                  fat: { type: Type.NUMBER },
-                  fibre: { type: Type.NUMBER }
-                }
-              }
-            }
-          }
-        }
+      const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${import.meta.env.VITE_OPENROUTER_API_KEY}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          model: 'meta-llama/llama-3.3-70b-instruct:free',
+          messages: [{ role: 'user', content: prompt }],
+        }),
       });
 
-      const responseText = response.text || '';
+      if (!response.ok) throw new Error(`OpenRouter error: ${response.status}`);
+
+      const data = await response.json();
+      const responseText = data.choices?.[0]?.message?.content || '';
       if (!responseText) throw new Error("Empty response from AI");
 
       let parsedRecipe: Partial<Recipe>;
