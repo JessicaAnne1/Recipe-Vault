@@ -37,7 +37,7 @@ export default function Capture() {
       `;
 
       const response = await ai.models.generateContent({
-        model: "gemini-3.1-pro-preview",
+        model: "gemini-2.0-flash",
         contents: prompt,
         config: {
           responseMimeType: "application/json",
@@ -90,8 +90,13 @@ export default function Capture() {
 
       const responseText = response.text || '';
       if (!responseText) throw new Error("Empty response from AI");
-      
-      const parsedRecipe = JSON.parse(responseText);
+
+      let parsedRecipe: Partial<Recipe>;
+      try {
+        parsedRecipe = JSON.parse(responseText);
+      } catch {
+        throw new Error("AI returned invalid JSON. Please try again.");
+      }
       // Store in session storage or state management to carry to /review
       sessionStorage.setItem('temp_recipe', JSON.stringify({
         ...parsedRecipe,

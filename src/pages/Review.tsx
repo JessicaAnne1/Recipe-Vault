@@ -15,7 +15,12 @@ export default function Review() {
       navigate('/capture');
       return;
     }
-    setRecipe(JSON.parse(temp));
+    try {
+      setRecipe(JSON.parse(temp));
+    } catch {
+      sessionStorage.removeItem('temp_recipe');
+      navigate('/capture');
+    }
   }, [navigate]);
 
   if (!recipe) return null;
@@ -28,7 +33,12 @@ export default function Review() {
       console.log("Saving recipe...", recipe);
       
       // Save to local storage for demo if firestore not ready
-      const library = JSON.parse(localStorage.getItem('my_recipes') || '[]');
+      let library: Recipe[];
+      try {
+        library = JSON.parse(localStorage.getItem('my_recipes') || '[]');
+      } catch {
+        library = [];
+      }
       const newRecipe = { ...recipe, id: `rec_${Date.now()}` };
       library.push(newRecipe);
       localStorage.setItem('my_recipes', JSON.stringify(library));

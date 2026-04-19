@@ -29,8 +29,8 @@ export default function Settings() {
               HM
             </div>
             <div className="space-y-1">
-              <p className="font-bold text-slate-900">Hello Muse</p>
-              <p className="text-sm text-slate-500">hello@littlemusestudio.com.au</p>
+              <p className="font-bold text-slate-900">Your Name</p>
+              <p className="text-sm text-slate-500">your@email.com</p>
               <div className="flex gap-2 mt-2">
                 <span className="bg-slate-100 text-slate-600 px-2 py-0.5 rounded-lg text-[10px] font-bold uppercase">Google Account</span>
               </div>
